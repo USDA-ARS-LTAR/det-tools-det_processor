@@ -1,0 +1,58 @@
+{
+  "runflags": {
+    "createCSVs": true,
+    "createCitation": true,
+    "createNALMeta": true,
+    "createESRI": true,
+    "createZip": true
+  },
+  "detPath": "C:\\GPSR\\staging\\alausdr\\alausdr.xlsx",
+  "abstract": {
+    "site": "Auburn AL SDR",
+    "description": "This study provides data on soil C and N dynamics and subsequent trace gas emissions at the landscape scale. Evaluates effects of landscape and soil management on 1) methane (CH4), nitrous oxide (N2O) and carbon dioxide (CO2) fluxes, 2) soil carbon (C) and nitrogen (N) mineralization and 3) cover crop decomposition and mineralization. Gas fluxes, C and N mineralization, and cover crop decomposition were determined on a 9-ha field at the E.V. Smith Research Center near Shorter, in AL. Consists of six replications of agroecosystem management [(corn (Zea mays L.)-cotton (Gossypium hirsutum L). rotation] that traverse the landscape. Soil managements included CsT, conventional tillage (CT), conservation tillage with dairy manure (CsTM), and conventional tillage with dairy manure (CTM) treatments. The soil management treatments were within summit, sideslope and the drainageway landscape positions. The drainageway landscape position emitted 46, 251, 59, and 185 mg CH4-C ha-1 h-1 from CT, CTM, CsT and CsTM treatments, respectively. The summit position was a CH4 consumer with CT and CsT treatments. Significant soil management treatment differences in N2O-N flux were observed only within the drainageway landscape position. Averaged across seasons, CT and CsT emitted similar N2O-N in the drainageway. Within the drainageway, dairy manure decreased N2O-N emission on CT treatments. Carbon dioxide emission in winter 2005 from CsT treatments (averaged across landscape positions) was 1304 g ha-1 h-1 CO2-C compared to 227 g ha-1 h-1 CO2-C from CT treatments. CsT and CsTM treatments increased soil organic C and total soil N after six years. This resulted in higher C and N mineralization on soils from CsT and CsTM treatments, with no differences between landscape positions. Potential C mineralization was similar for crimson clover, spring forage rape and white lupin amended soil while black oat amended soil immobilized N. Buried cover crops decomposed and mineralized faster than surface applied materials, with no differences in cover crop decomposition and mineralization k across landscape positions. Overall, landscape variability had minimal effect on C and N dynamics and cover crop decomposition compared to soil management effects. Conservation tillage, dairy manure applications, and cover crops showed potential to sequester soil organic C and increase total soil N in these systems.The study site is located at the Alabama Agricultural Experiment Station’s E.V. Smith Research Center, near Shorter. Four management treatments were established in late summer of2000 on a corn and cotton rotation that has both crops present each year. The management systems included a conventional tillage system (chisel- followed by disc-plow) with (CT+M) and without (CT) manure, and a conservation tillage system (non- inversion tillage) that incorporated the use of winter cover crops with (NT+M) and without manure (NT). A mixture of rye (Secale cereale L.) with black oat (Avena strigosa Schreb.), and a mixture of crimson clover (Trifolium incarnatum L.) with white lupin (Lupinus albus L.) and fodder radish (Raphanus sativus L.) were typically used as winter cover before cotton (Gossypium hirsutum L.) and corn (Zea mays L.), respectively. Four strips with an average length of 800 ft were established across the landscape to represent the four management systems for each crop per each replication. Each strip was further divided into cells to simplify sampling and field measurements. A total of six replications were established on the 22 ac field. Maximum slope is 8% and 9 soil map units are contained within this landscape. Prior research work at the same field site delineated four distinct zones using a digital elevation map, electrical conductivity survey, and traditional soil mapping techniques. For this study, three of these zones were selected and recognized as summit, backslope, and accumulation zones in the landscape. Two cells per management and zone were selected to conduct soil physical properties characterization (Fig. 1). Soil properties studied included total soil C by dry combustion at three depths, water infiltration with a mini-disk infiltrometer (Decagon Devices Inc., Pullman, WA)1, and water stable aggregates (Nimmo and Perkings, 2002). Data were analyzed with the MIXED model procedure in SAS (SAS Institute Inc., Cary, NC). Management system, landscape position, depth, and their interactions were considered as fixed effects."
+  },
+  "templates": {
+    "dataDef": "C:\\GPSR\\DataDefinitions.xlsx",
+    "citationTemplatePath": "C:\\GPSR\\citationsyntax.xlsx"
+  },
+  "sitePI": {
+    "lastName": "Balkcom",
+    "firstName": "Kipling",
+    "middleName": "Shane",
+    "suffix": "Dr.",
+    "department": "USDA",
+    "organization": "ARS",
+    "profession": "Agronomist",
+    "email": "kip.balkcom@ars.usda.gov",
+    "telephone": "334-844-4666",
+    "country": "USA",
+    "state": "AL",
+    "county": "Macon",
+    "city": "Shorter",
+    "postalCode": "36075"
+  },
+  "boundingBox": {
+    "north": 32.423849,
+    "west": -85.897912,
+    "south": 32.421965,
+    "east": -85.895231
+  },
+  "compressedConfig": {
+    "compressedDir": "C:\\GPSR\\compressed\\alausdr\\",
+    "compressedName": "alausdr.zip",
+    "searchDir": [
+      "C:\\GPSR\\staging\\metadata\\Shapefiles",
+      "C:\\GPSR\\staging\\metadata\\Support Files"
+    ],
+    "includeFiles": [
+      "C:\\GPSR\\staging\\alausdr\\alausdr.xlsx"
+    ],
+    "includeCitation": false
+  },
+  "csvSaveLoc": "C:\\GPSR\\csv\\alausdr\\",
+  "xmlSaveLoc": "C:\\GPSR\\xml\\",
+  "keywordsDir": "C:\\GPSR\\staging\\alausdr\\ALAUSDR_keywords.txt",
+  "citationSaveDir": "C:\\GPSR\\staging\\alausdr\\",
+  "dataStartRow": 2,
+  "dataHeaderRow": 1
+}

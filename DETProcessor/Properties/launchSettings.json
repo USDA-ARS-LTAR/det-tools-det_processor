@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DETProcessor": {
+      "commandName": "Project",
+      "commandLineArgs": "det_process_config.json"
+    }
+  }
+}

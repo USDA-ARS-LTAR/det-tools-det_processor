@@ -5,4 +5,9 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="Syncfusion.XlsIO.NETStandard20" Version="15.3200.0.29" />
+  </ItemGroup>
+
 </Project>
