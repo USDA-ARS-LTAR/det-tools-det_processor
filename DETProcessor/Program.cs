@@ -18,9 +18,15 @@ namespace DETProcessor
             // keywords 
             JObject configFile = JObject.Parse(System.IO.File.ReadAllText(args[0]));
             //Console.WriteLine(configFile);
-            Processor.RunProcessor processor = new Processor.RunProcessor(configFile);
-            PrintOptions(processor.RunConfig);
-            processor.ProcessDET();
+            try
+            {
+                RunProcessor processor = new Processor.RunProcessor(configFile);
+                PrintOptions(processor.RunConfig);
+                processor.ProcessDET();
+            } catch (ArgumentException ex)
+            {
+                Console.WriteLine("DETProcessor: error " + ex.Message);
+            }
         }
 
         private static void PrintOptions(RunOptions runConfig)

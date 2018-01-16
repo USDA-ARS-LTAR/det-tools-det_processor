@@ -1,6 +1,7 @@
 ﻿using DETProcessor.Citation;
 using DETProcessor.MetadataWriters;
 using DETProcessor.Utils;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Syncfusion.XlsIO;
 using System;
@@ -32,6 +33,28 @@ namespace DETProcessor.Processor
             DataStartRow = configFile.GetValue("dataStartRow").Value<int>(); // required
             DataHeaderRow = configFile.GetValue("dataHeaderRow").Value<int>(); // required
             RunConfig = configFile.GetValue("runflags").ToObject<RunOptions>(); ; // required
+            if (RunConfig.CreateNALMeta)
+            {
+                if (configFile.TryGetValue("nalMetadata", out JToken token))
+                {
+                    try
+                    {
+                        metadata.NALData = token.ToObject<NALMetadata>(); // try list otherwise:
+                    } catch (JsonSerializationException e)
+                    {
+                        metadata.NALData = new NALMetadata();
+                        metadata.NALData.FIPSCode = token.SelectToken("fipsCode").Value<string>().Replace("&gt;", ">");
+                        metadata.NALData.NASALocationCode = token.SelectToken("nasaLocationCode").Value<string>();
+                        metadata.NALData.NALDataSourceCode = new List<string>() { token.SelectToken("nalDataSourceCode").Value<string>() };
+                        metadata.NALData.FederalProgramCode = token.SelectToken("federalProgramCode").Value<string>();
+                        metadata.NALData.OMBCode = token.SelectToken("ombCode").Value<string>();
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException("NAL-XML -> Tag \"nalMetadata\" is missing, tag is required to complete XML format.");
+                }
+            }
         }
 
         ~RunProcessor()

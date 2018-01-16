@@ -21,6 +21,8 @@ namespace DETProcessor.Processor
 
         public BoundingBox Box { get; set; }
 
+        public NALMetadata NALData { get; set; }
+
         public List<MetaDataPair> MDP { get; set; }
     }
 
@@ -36,6 +38,7 @@ namespace DETProcessor.Processor
     public class Purpose
     {
         public string Site { get; set; }
+        public string Alternate { get; set; }
         public string Description { get; set; }
     }
 
@@ -50,6 +53,16 @@ namespace DETProcessor.Processor
         public double North { get; set; }
         public double East { get; set; }
         public double South { get; set; }
+    }
+
+    public class NALMetadata
+    {
+        public string FIPSCode { get; set; }
+        public string NASALocationCode { get; set; }
+        public List<string> NALDataSourceCode { get; set; }
+        public string FederalProgramCode { get; set; }
+        public string OMBCode { get; set; }
+
     }
 
 }

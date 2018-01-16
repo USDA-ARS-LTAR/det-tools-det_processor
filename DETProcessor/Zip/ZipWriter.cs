@@ -23,7 +23,7 @@ namespace DETProcessor.Zip
                     ZipCitation(config, md, citationSaveDir, archive);
                 }
             }
-
+            
         }
 
         private static void ZipCitation(CompressedConfiguration config, Metadata md, string citationSaveDir, ZipArchive archive)
@@ -43,11 +43,11 @@ namespace DETProcessor.Zip
             {
                 string dirPath = dir;
                 DirectoryInfo dirInfo = new DirectoryInfo(dirPath);
+                string dirName = dirInfo.Name;
                 FileInfo[] files = dirInfo.GetFiles("*"+siteName+"*");
                 foreach (var file in files)
                 {
-                    //string zipFileName = Path.Combine(dir, file.Name);
-                    archive.CreateEntryFromFile(file.FullName, file.Name);
+                    archive.CreateEntryFromFile(file.FullName, dirName + "\\" + file.Name);
                 }
 
             }

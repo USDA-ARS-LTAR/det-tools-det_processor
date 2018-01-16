@@ -75,8 +75,8 @@ namespace DETProcessor.Processor
             ws.UsedRangeIncludesFormatting = false;
             md.LocID = ws[theProcessor.DataStartRow, 1].Value; // site name
             md.PeriodBegin = ws[theProcessor.DataStartRow, 7].DateTime;
-            if (ws[theProcessor.DataStartRow, 7].Value != "")
-                md.PeriodEnd = ws[theProcessor.DataStartRow, 7].DateTime;
+            if (ws[theProcessor.DataStartRow, 8].Value != "")
+                md.PeriodEnd = ws[theProcessor.DataStartRow, 8].DateTime;
 
             if (ws.UsedRange.LastRow > theProcessor.DataStartRow)
             {
@@ -85,11 +85,16 @@ namespace DETProcessor.Processor
                 int lastRow = ws.UsedRange.LastRow;
                 for (int row = theProcessor.DataStartRow; row <= lastRow; row++)
                 {
+                    // add both start and end dates to range.
                     DateTime theTime = ws[row, 7].DateTime;
                     dateRange.Add( theTime == null ? DateTime.Now : theTime);
+                    theTime = ws[row, 8].DateTime;
+                    dateRange.Add(theTime == null ? DateTime.Now : theTime);
                 }
                 dateRange.Sort();
+                // earliest date = start
                 md.PeriodBegin = dateRange.Min();
+                // latest date = end. (Most likely current date)
                 md.PeriodEnd = dateRange.Max();
                 theProcessor.IsMaster = true;
             }
@@ -160,8 +165,10 @@ namespace DETProcessor.Processor
         {
             // save loc should be <path>\\sitename\\ if you want it saved for a specific site
             string newfname = Path.Combine(csvSavePath, siteName + "_" + ws.Name + ".csv");
-            FileStream fs = new FileStream(newfname, FileMode.Create);
-            ws.SaveAs(fs, ",");
+            using (FileStream fs = new FileStream(newfname, FileMode.Create))
+            {
+                ws.SaveAs(fs, ",");
+            }
         }
     }
 }
