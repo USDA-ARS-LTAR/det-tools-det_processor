@@ -33,7 +33,10 @@ namespace DETProcessor.Processor
             if (det == null) return false; // det doesn't exist, so stop execution
 
             SetupDirectory();
-            PopulateMetadata(det, md);
+            //if (theProcessor.RunConfig.CreateCitation)
+            //{
+                PopulateMetadata(det, md);
+            //}
             PopulateSheetMetadataAndCSVs(det, md);
 
             return true;
@@ -60,7 +63,8 @@ namespace DETProcessor.Processor
         {
             foreach (IWorksheet sheet in det.Worksheets)
             {
-                AddSheetMetadata(sheet, md);
+                if (theProcessor.RunConfig.CreateCitation)
+                    AddSheetMetadata(sheet, md);
                 if (createCSVs)
                 {
                     SaveAsCSV(sheet, md.LocID); // send in sheet and the path to the save location.

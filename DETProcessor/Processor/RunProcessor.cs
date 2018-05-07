@@ -29,7 +29,7 @@ namespace DETProcessor.Processor
         public RunProcessor(JObject configFile)
         {
             ConfigFile = configFile;
-            metadata = createMetadata(configFile);
+            metadata = CreateMetadata(configFile);
             DataStartRow = configFile.GetValue("dataStartRow").Value<int>(); // required
             DataHeaderRow = configFile.GetValue("dataHeaderRow").Value<int>(); // required
             RunConfig = configFile.GetValue("runflags").ToObject<RunOptions>(); ; // required
@@ -64,11 +64,18 @@ namespace DETProcessor.Processor
 
         public void ProcessDET()
         {
-            dynamic templates = ConfigFile.GetValue("templates"); // required
-            ReadDataDef((string)templates.dataDef);
+            dynamic templates = null;
+            if (RunConfig.CreateCitation) {
+                templates = ConfigFile.GetValue("templates"); // required
+                ReadDataDef((string)templates.dataDef);
+            }
+
             ProcessXLSXDET();
-            // locid and mdp now populated.
-            CreateCitation(templates);
+            if (RunConfig.CreateCitation)
+            {
+                // locid and mdp now populated.
+                CreateCitation(templates);
+            }
             // metadata created
             // write xmls
             CreateXMLMetadataFiles(ConfigFile, metadata);
@@ -95,7 +102,7 @@ namespace DETProcessor.Processor
             Console.WriteLine("CSVs: Done.");
         }
 
-        private Metadata createMetadata(JObject configFile)
+        private Metadata CreateMetadata(JObject configFile)
         {
             Metadata md = new Metadata();
             md.MDP = new List<MetaDataPair>();

@@ -73,7 +73,7 @@ namespace DETProcessor.MetadataWriters
                                 )
                             ),
                         new XElement("idAbs", metDat.Purp.Site),
-                        new XElement("idPurp", metDat.Purp.Description),
+                        new XElement("idPurp", metDat.Purp.Description.Substring(0, 2048)),
                         new XElement("dataLang",
                             new XElement("languageCode",
                                 new XAttribute("value", "eng")
