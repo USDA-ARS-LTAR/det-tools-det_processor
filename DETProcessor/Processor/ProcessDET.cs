@@ -1,9 +1,10 @@
-﻿using Syncfusion.XlsIO;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using System;
+using OfficeOpenXml;
+using System.Text;
 
 namespace DETProcessor.Processor
 {
@@ -29,17 +30,20 @@ namespace DETProcessor.Processor
         {
             // open det
             // for each tab: csv + store metadata
-            IWorkbook det = theProcessor.OpenXLSXWorkBook(xlsxPath);
-            if (det == null) return false; // det doesn't exist, so stop execution
+            using (ExcelPackage file = new ExcelPackage(new FileInfo(xlsxPath)))
+            {
+                var det = file.Workbook;
+                if (det == null) return false; // det doesn't exist, so stop execution
 
-            SetupDirectory();
-            //if (theProcessor.RunConfig.CreateCitation)
-            //{
+                SetupDirectory();
+                //if (theProcessor.RunConfig.CreateCitation)
+                //{
                 PopulateMetadata(det, md);
-            //}
-            PopulateSheetMetadataAndCSVs(det, md);
+                //}
+                PopulateSheetMetadataAndCSVs(det, md);
 
-            return true;
+                return true;
+            }
         }
 
         private void SetupDirectory()
@@ -48,7 +52,8 @@ namespace DETProcessor.Processor
             {
                 DirectoryInfo dir = new DirectoryInfo(csvSavePath);
 
-                foreach (FileInfo csvFile in dir.GetFiles())
+                foreach (FileInfo csvFile in dir.GetFiles("*.csv"))
+
                 {
                     csvFile.Delete();
                 }
@@ -59,12 +64,12 @@ namespace DETProcessor.Processor
             }
         }
 
-        private void PopulateSheetMetadataAndCSVs(IWorkbook det, Metadata md)
+        private void PopulateSheetMetadataAndCSVs(ExcelWorkbook det, Metadata md)
         {
-            foreach (IWorksheet sheet in det.Worksheets)
+            foreach (var sheet in det.Worksheets)
             {
                 if (theProcessor.RunConfig.CreateCitation)
-                    AddSheetMetadata(sheet, md);
+                    AddSheetMetadata(sheet, md); 
                 if (createCSVs)
                 {
                     SaveAsCSV(sheet, md.LocID); // send in sheet and the path to the save location.
@@ -73,26 +78,25 @@ namespace DETProcessor.Processor
             }
         }
 
-        private void PopulateMetadata(IWorkbook det, Metadata md)
+        private void PopulateMetadata(ExcelWorkbook det, Metadata md)
         {
-            IWorksheet ws = det.Worksheets[@"Overview"];
-            ws.UsedRangeIncludesFormatting = false;
-            md.LocID = ws[theProcessor.DataStartRow, 1].Value; // site name
-            md.PeriodBegin = ws[theProcessor.DataStartRow, 7].DateTime;
-            if (ws[theProcessor.DataStartRow, 8].Value != "")
-                md.PeriodEnd = ws[theProcessor.DataStartRow, 8].DateTime;
-
-            if (ws.UsedRange.LastRow > theProcessor.DataStartRow)
+            var ws = det.Worksheets[@"Overview"];
+            //ws.UsedRangeIncludesFormatting = false;
+            md.LocID = ws.Cells[theProcessor.DataStartRow, 1].Value.ToString(); // site name
+            md.PeriodBegin = DateTime.Parse(ws.Cells[theProcessor.DataStartRow, 7].Value.ToString());
+            if (ws.Cells[theProcessor.DataStartRow, 8].Value.ToString() != "")
+                md.PeriodEnd = DateTime.Parse(ws.Cells[theProcessor.DataStartRow, 8].Value.ToString());
+            var endRow = ws.Dimension.End.Row;
+            if (endRow > theProcessor.DataStartRow)
             {
                 md.LocID = "NatRes";
                 List<DateTime> dateRange = new List<DateTime>();
-                int lastRow = ws.UsedRange.LastRow;
-                for (int row = theProcessor.DataStartRow; row <= lastRow; row++)
+                for (int row = theProcessor.DataStartRow; row <= endRow; row++)
                 {
                     // add both start and end dates to range.
-                    DateTime theTime = ws[row, 7].DateTime;
+                    var theTime = DateTime.Parse(ws.Cells[row, 7].Value?.ToString() ?? DateTime.Now.ToString());
                     dateRange.Add( theTime == null ? DateTime.Now : theTime);
-                    theTime = ws[row, 8].DateTime;
+                    theTime = DateTime.Parse(ws.Cells[row, 8].Value?.ToString() ?? DateTime.Now.ToString());
                     dateRange.Add(theTime == null ? DateTime.Now : theTime);
                 }
                 dateRange.Sort();
@@ -105,25 +109,21 @@ namespace DETProcessor.Processor
             md.Persons = GetPeople(det);
         }
 
-        private List<Person> GetPeople(IWorkbook det)
+        private List<Person> GetPeople(ExcelWorkbook det)
         {
             List<Person> persons = new List<Person>();
-            IWorksheet ws = det.Worksheets[@"Persons"];
-            int firstNameRow = 3;
-            int lastNameRow = 2;
+            ExcelWorksheet ws = det.Worksheets[@"Persons"];
+            int firstNameCol = 3;
+            int lastNameCol = 2;
             int roleRow = 6;
-            //if (theProcessor.IsMaster)
-            //{
-            //    firstNameRow++;
-            //    lastNameRow++;
-            //    roleRow++;
-            //}
-            int lastRow = ws.UsedRange.LastRow;
-            for (int idx = theProcessor.DataStartRow; idx <= lastRow; idx++)
+           
+            int lastRow = ws.Dimension.End.Row;
+            for (int idx = theProcessor.DataStartRow; idx < lastRow; idx++)
             {
-                string ln = ws.Range[idx, lastNameRow].Value;
-                string fn = ws.Range[idx, firstNameRow].Value;
-                string role = ws.Range[idx, roleRow].Value.ToLower();
+                if (RowEmpty(idx, ws)) { break; }
+                string ln = ws.Cells[idx, lastNameCol].Value.ToString();
+                string fn = ws.Cells[idx, firstNameCol].Value.ToString();
+                string role = ws.Cells[idx, roleRow].Value?.ToString().ToLower() ?? "";
                 if (ln.Length != 0 && fn.Length != 0)
                 {
                     persons.Add(new Person
@@ -145,17 +145,29 @@ namespace DETProcessor.Processor
             return persons;
         }
 
-        private void AddSheetMetadata(IWorksheet ws, Metadata md)
+        private bool RowEmpty(int row, ExcelWorksheet ws)
+        {
+            bool isEmpty = true;
+            for (int col = 1; col <= ws.Dimension.End.Column; col++)
+            {
+                if (ws.Cells[row, col].Value != null)
+                    isEmpty = false;
+            }
+            return isEmpty;
+        }
+
+        private void AddSheetMetadata(ExcelWorksheet ws, Metadata md)
         {
             List<MetaDataPair> sheetMeta = new List<MetaDataPair>();
-            int lastRow = ws.UsedRange.LastRow;
-            int lastCol = ws.UsedRange.LastColumn;
+            int lastRow = ws.Dimension.End.Row;
+            int lastCol = ws.Dimension.End.Column;
             for (int i = theProcessor.DataHeaderRow; i <= lastCol; i++)
             {
                 MetaDataPair mdp = null;
-                if (AllMetaData.TryGetValue(ws[theProcessor.DataHeaderRow, i].Value.ToLower(), out mdp))
+                string value = ws.Cells[theProcessor.DataHeaderRow, i].Value?.ToString() ?? "";
+                if (AllMetaData.TryGetValue(value, out mdp))
                 {
-                    if (!ws.Range[theProcessor.DataStartRow, i, lastRow, i].IsBlank)
+                    if (ws.Cells[theProcessor.DataStartRow, i, lastRow, i].Value != null)
                     {
                         sheetMeta.Add(mdp);
                         if (!md.MDP.Contains(mdp))
@@ -165,14 +177,27 @@ namespace DETProcessor.Processor
             }
         }
 
-        private void SaveAsCSV(IWorksheet ws, string siteName)
+        private void SaveAsCSV(ExcelWorksheet ws, string siteName)
         {
             // save loc should be <path>\\sitename\\ if you want it saved for a specific site
             string newfname = Path.Combine(csvSavePath, siteName + "_" + ws.Name + ".csv");
             using (FileStream fs = new FileStream(newfname, FileMode.Create))
             {
-                ws.SaveAs(fs, ",");
+                int colCount = ws.Dimension.End.Column;  //get Column Count
+                int rowCount = ws.Dimension.End.Row;     //get row count
+                for (int row = 1; row <= rowCount; row++)
+                {
+                    var tokens = new List<string>();
+                    for (int col = 1; col <= colCount; col++)
+                    {
+                        tokens.Add(ws.Cells[row, col].Value?.ToString().Trim());
+                    }
+                    fs.Write(Encoding.UTF8.GetBytes(string.Join(',', tokens)));
+                    fs.Write(Encoding.UTF8.GetBytes(Environment.NewLine));
+                }
+               //ws.SaveAs(fs, ",");
             }
         }
+
     }
 }

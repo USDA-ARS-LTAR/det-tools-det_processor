@@ -2,7 +2,8 @@
   "profiles": {
     "DETProcessor": {
       "commandName": "Project",
-      "commandLineArgs": "det_process_config.json"
+      "commandLineArgs": ".\\staging\\natres\\det_process_config.json",
+      "workingDirectory": "C:\\builds"
     }
   }
 }

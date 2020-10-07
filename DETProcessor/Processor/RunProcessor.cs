@@ -3,7 +3,7 @@ using DETProcessor.MetadataWriters;
 using DETProcessor.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Syncfusion.XlsIO;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,7 +14,6 @@ namespace DETProcessor.Processor
     {
         private Dictionary<string, MetaDataPair> allMetaData;
 
-        private ExcelEngine ee = new ExcelEngine();
         private ProcessDET csvWriter;
         private Metadata metadata = new Metadata();
         private CitationWriter citeWriter;
@@ -59,7 +58,6 @@ namespace DETProcessor.Processor
 
         ~RunProcessor()
         {
-            ee.Dispose();
         }
 
         public void ProcessDET()
@@ -71,6 +69,7 @@ namespace DETProcessor.Processor
             }
 
             ProcessXLSXDET();
+            metadata.CitationName = metadata.LocID + "_citation.xlsx";
             if (RunConfig.CreateCitation)
             {
                 // locid and mdp now populated.
@@ -84,7 +83,6 @@ namespace DETProcessor.Processor
 
         private void CreateCitation(dynamic templates)
         {
-            metadata.CitationName = metadata.LocID + "_citation.xlsx";
             if (RunConfig.CreateCitation)
             {
                 Console.WriteLine("Citation: Started...");
@@ -179,26 +177,30 @@ namespace DETProcessor.Processor
 
         private bool ReadDataDef(string dataDefPath)
         {
-            IWorkbook definitions = OpenXLSXWorkBook(dataDefPath);
-            if (definitions == null) return false;
-            allMetaData = CreateMetaData(definitions);
-            return true;
+            using (ExcelPackage ep = new ExcelPackage(new FileInfo(dataDefPath)))
+            {
+                var definitions = ep.Workbook;
+                if (definitions == null) return false;
+                allMetaData = CreateMetaData(definitions);
+                return true;
+            }
+
         }
 
-        private Dictionary<string, MetaDataPair> CreateMetaData(IWorkbook wb)
+        private Dictionary<string, MetaDataPair> CreateMetaData(ExcelWorkbook wb)
         {
             Dictionary<string, MetaDataPair> allMetaData = new Dictionary<string, MetaDataPair>();
-            IWorksheet ws = wb.Worksheets[0];
-            ws.UsedRangeIncludesFormatting = false;
-            int lastrow = ws.UsedRange.LastRow;
+            ExcelWorksheet ws = wb.Worksheets[0];
+            //ws.UsedRangeIncludesFormatting = false;
+            int lastrow = ws.Dimension.End.Row;
             for (int idx = DataStartRow; idx <= lastrow; idx++)
             {
-                string column_name = ws[idx, 1].Value.ToLower();
+                string column_name = ws.Cells[idx, 1].Value.ToString().ToLower();
                 if (!allMetaData.ContainsKey(column_name))
                 {
-                    string desc = ws[idx, 2].Value;
-                    string units = ws[idx, 3].Value;
-                    string dataType = ws[idx, 4].Value;
+                    string desc = ws.Cells[idx, 2].Value.ToString();
+                    string units = ws.Cells[idx, 3].Value.ToString();
+                    string dataType = ws.Cells[idx, 4].Value.ToString();
 
                     allMetaData.Add(column_name,
                         new MetaDataPair
@@ -214,13 +216,5 @@ namespace DETProcessor.Processor
         }
 
 
-        public IWorkbook OpenXLSXWorkBook(string pathToFile)
-        {
-            FileStream fs = FileUtils.OpenReadOnlyFile(pathToFile);
-            if (fs == null) return null;
-            IWorkbook wb = ee.Excel.Workbooks.Open(fs);
-            wb.Version = ExcelVersion.Excel2016;
-            return wb;
-        }
     }
 }

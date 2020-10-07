@@ -30,9 +30,12 @@ namespace DETProcessor.Zip
         {
             if (config.IncludeCitation)
             {
-                string citationDir = Path.Combine(citationSaveDir, md.CitationName);
-                Console.WriteLine("Adding file to zip: " + citationDir);
-                archive.CreateEntryFromFile(citationDir, md.CitationName);
+                string citationPath = Path.Combine(citationSaveDir, md.CitationName);
+                if (File.Exists(citationPath))
+                {
+                    Console.WriteLine("Adding file to zip: " + citationPath);
+                    archive.CreateEntryFromFile(citationPath, md.CitationName);
+                }
             }
         }
 
@@ -44,7 +47,16 @@ namespace DETProcessor.Zip
                 string dirPath = dir;
                 DirectoryInfo dirInfo = new DirectoryInfo(dirPath);
                 string dirName = dirInfo.Name;
-                FileInfo[] files = dirInfo.GetFiles("*"+siteName+"*");
+                FileInfo[] files = null;
+                if (dir.Contains("csv"))
+                {
+                    files = dirInfo.GetFiles("*" + siteName + "*.csv");
+                } 
+                else
+                {
+                    files = dirInfo.GetFiles("*" + siteName + "*");
+                }
+                
                 foreach (var file in files)
                 {
                     archive.CreateEntryFromFile(file.FullName, dirName + "\\" + file.Name);

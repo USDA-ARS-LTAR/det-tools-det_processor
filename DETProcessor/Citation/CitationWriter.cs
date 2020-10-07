@@ -1,7 +1,7 @@
 ﻿using DETProcessor.Processor;
 using DETProcessor.Utils;
 using Newtonsoft.Json.Linq;
-using Syncfusion.XlsIO;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,20 +25,21 @@ namespace DETProcessor.Citation
 
         public bool CreateCitation(Metadata md)
         {
-
-            IWorkbook wb = TheProcessor.OpenXLSXWorkBook(citationTemplatePath);
-            if (wb == null) return false; // failed to open book, dont do anything.
-            string citation = CreateCitationString(md, TheProcessor.IsMaster);
-
-            wb.Worksheets["Version6"].Range[2, 1].Value = citation;
-            string newPath = Path.Combine(citationSaveDir, md.CitationName);
-            
-            using (FileStream fs = FileUtils.CreateNewFile(newPath))
+            using (ExcelPackage file = new ExcelPackage(new FileInfo(citationTemplatePath)))
             {
-                wb.SaveAs(fs);
+                var wb = file.Workbook;
+                if (wb == null) return false; // failed to open book, dont do anything.
+                string citation = CreateCitationString(md, TheProcessor.IsMaster);
+
+                wb.Worksheets["Version6"].Cells[2, 1].Value = citation;
+                string newPath = Path.Combine(citationSaveDir, md.CitationName);
+
+                using (FileStream fs = FileUtils.CreateNewFile(newPath))
+                {
+                    file.SaveAs(fs);
+                }
+                return true;
             }
-            wb.Close();
-            return true;
         }
 
         private string CreateCitationString(Metadata md, bool mastersheet)
